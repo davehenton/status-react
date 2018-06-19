@@ -38,9 +38,9 @@
                                                          "contact-request-confirmation")
                                 :data-store/tx [(transport-store/save-transport-tx {:chat-id chat-id
                                                                                     :chat    updated-chat})]}
-                               (protocol/send {:chat-id chat-id
-                                               :payload this
-                                               :success-event success-event})))))
+                               (protocol/send-with-pubkey {:chat-id chat-id
+                                                           :payload this
+                                                           :success-event success-event})))))
 
 (defrecord ContactUpdate [name profile-image]
   message/StatusMessage
@@ -65,9 +65,9 @@
                                                               [:transport/chats chat-id :resend?]
                                                               "contact-update")
                                      :data-store/tx tx}
-                                    (protocol/send {:chat-id       chat-id
-                                                    :payload       this
-                                                    :success-event success-event}))))
+                                    (protocol/send-with-pubkey {:chat-id       chat-id
+                                                                :payload       this
+                                                                :success-event success-event}))))
        recipients))))
 
 (defn remove-chat-filter
