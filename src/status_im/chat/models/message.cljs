@@ -165,6 +165,7 @@
         add-message-fn             (if batch? add-batch-message add-single-message)
         message                    (-> raw-message
                                        (ensure-clock-value chat)
+                                       ;; TODO (cammellos): Refactor so it's not computed twice
                                        (add-outgoing-status cofx)
                                        (add-command-request chat cofx))]
     (handlers-macro/merge-fx cofx
@@ -181,6 +182,7 @@
                              (send-message-seen chat-id message-id (and (not public?)
                                                                         current-chat?
                                                                         (not (chat-model/bot-only-chat? db chat-id))
+                                                                        (not (= constants/system from))
                                                                         (not (:outgoing message)))))))
 
 (def ^:private add-single-received-message (partial add-received-message false))

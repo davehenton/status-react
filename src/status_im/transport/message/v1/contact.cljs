@@ -42,7 +42,7 @@
                                                            :payload this
                                                            :success-event success-event})))))
 
-(defrecord ContactUpdate [name profile-image]
+(defrecord ContactUpdate [name profile-image address fcm-token]
   message/StatusMessage
   (send [this _ {:keys [db] :as cofx}]
     (let [public-keys (reduce (fn [acc [_ {:keys [public-key pending?]}]]

@@ -245,6 +245,9 @@
        (filter :fetch-history?
                (vals (:transport/chats db)))))
 
+(defn request-history-span [now-in-s]
+  (- now-in-s one-day))
+
 (defn request-messages
   ([{:keys [db now] :as cofx}]
    (let [wnode                   (models.mailserver/fetch-current cofx)
@@ -262,7 +265,7 @@
                              :to         now-in-s
                              :web3       web3}
                             {:wnode      wnode
-                             :from       (- now-in-s one-day)
+                             :from       (request-history-span now-in-s)
                              :to         now-in-s
                              :topics     request-history-topics
                              :web3       web3}]
@@ -281,7 +284,7 @@
     (when (inbox-ready? wnode cofx)
       {::request-messages [{:wnode      wnode
                             :topics     [topic]
-                            :from       (- now-in-s one-day)
+                            :from       (request-history-span now-in-s)
                             :to         now-in-s
                             :web3       web3}]
        :db                (assoc db :inbox/fetching? true)
