@@ -90,7 +90,7 @@
                                   :payload       this
                                   :success-event success-event}
                                  cofx)))
-  (receive [this chat-id signature {:keys [db] :as cofx}]
+  (receive [this chat-id _ timestamp {:keys [db] :as cofx}]
     (let [current-sym-key (get-in db [:transport/chats chat-id :sym-key])
           ;; NOTE(yenda) to support concurrent contact request without additional
           ;; interactions we don't save the new key if these conditions are met:
@@ -105,6 +105,7 @@
         (let [on-success (fn [sym-key sym-key-id]
                            (re-frame/dispatch [:contact/add-new-sym-key
                                                {:sym-key-id sym-key-id
+                                                :timestamp  timestamp
                                                 :sym-key    sym-key
                                                 :chat-id    chat-id
                                                 :topic      topic
@@ -119,4 +120,4 @@
                                    ;; dereferrencing it
                                    (remove-chat-filter chat-id)))
         ;; if we don't save the key, we read the message directly
-        (message/receive message chat-id chat-id cofx)))))
+        (message/receive message chat-id chat-id timestamp cofx)))))

@@ -49,18 +49,24 @@
 
 (defn handle-contact-update
   [public-key
+   timestamp
    {:keys [name profile-image address fcm-token] :as m}
-   {{:contacts/keys [contacts] :keys [current-public-key] :as db} :db now :now :as cofx}]
-  (let [prev-last-updated (get-in db [:contacts/contacts public-key :last-updated])]
+   {{:contacts/keys [contacts] :keys [current-public-key] :as db} :db :as cofx}]
+  ;; We need to convert to timestamp ms as before we were using now in ms to
+  ;; set last updated
+  ;; Using whisper timestamp mostly works but breaks in a few scenarios:
+  ;; 2 updates sent in the same second
+  ;; when using multi-device & clocks are out of sync
+  ;; Using logical clocks is probably the correct way to handle it, but an overkill
+  ;; for now
+  (let [timestamp-ms      (* timestamp 1000)
+        prev-last-updated (get-in db [:contacts/contacts public-key :last-updated])]
     (when (and (not= current-public-key public-key)
-               ;; This does not work, prev-last-updated is always < then now
-               ;; + it does not handle out of order messages/mailserver
-               ;; timestamp should in this case sent with the contact update, or use
-               ;; whisper timestamp
-               (<= prev-last-updated now))
+               (< prev-last-updated timestamp-ms))
       (let [contact          (get contacts public-key)
 
-            ;; Backward compatibility, old version might not send address/fcm token
+            ;; Backward compatibility with <= 0.9.21, as they don't send
+            ;; fcm-token & address in contact updates
             contact-props    (cond->
                               {:whisper-identity public-key
                                :public-key       public-key
@@ -69,7 +75,7 @@
                                :address          (or address
                                                      (:address contact)
                                                      (utils.contacts/public-key->address public-key))
-                               :last-updated     now
+                               :last-updated     timestamp-ms
                                ;;NOTE (yenda) in case of concurrent contact request
                                :pending?         (get contact :pending? true)}
                                fcm-token (assoc :fcm-token fcm-token))]
