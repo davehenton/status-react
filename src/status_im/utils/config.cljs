@@ -46,3 +46,4 @@
 (def group-chats-enabled? (enabled? (get-config :GROUP_CHATS_ENABLED)))
 (def spam-button-detection-enabled? (enabled? (get-config :SPAM_BUTTON_DETECTION_ENABLED "0")))
 (def mainnet-warning-enabled? (enabled? (get-config :MAINNET_WARNING_ENABLED 0)))
+(def collectibles-enabled? (enabled? (get-config :COLLECTIBLES_ENABLED)))
